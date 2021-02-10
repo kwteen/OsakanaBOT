@@ -12,12 +12,11 @@ const setting = JSON.parse(fs.readFileSync('./settings/setting.json'))
 
 let {
     mtc: mtcState,
-    banChats,
     restartState: isRestart
     } = setting
 
 /*
-//THANKS TO TOBZ & NURUTOMO
+//THANKS TO TOBYG74 & NURUTOMO
 require('./nzwa.js')
 nocache('./nzwa.js', module => console.log(`'${module}' Updated!`))
 require('./src/menu/help.js')
@@ -57,8 +56,46 @@ const start = async (nzwa = new Client()) => {
     }))
            
 
-        nzwa.onGlobalParicipantsChanged((async (heuh) => {
+        /*nzwa.onGlobalParicipantsChanged((async (heuh) => {
             await welcome(nzwa, heuh) 
             left(nzwa, heuh)
-            }))
+            }))*/
+
+        // listening on Incoming Call
+        nzwa.onIncomingCall(( async (call) => {
+            await nzwa.sendText(call.peerJid, 'Maaf, saya tidak bisa menerima panggilan. nelfon = block!.\nJika ingin membuka block harap chat Owner!')
+            .then(() => tobz.contactBlock(call.peerJid))
+        }))
+    }
+
+/**
+ * Uncache if there is file change
+ * @param {string} module Module name or path
+ * @param {function} cb <optional> 
+ */
+function nocache(module, cb = () => { }) {
+    console.log('Module', `'${module}'`, 'is now being watched for changes')
+    fs.watchFile(require.resolve(module), async () => {
+        await uncache(require.resolve(module))
+        cb(module)
+    })
 }
+
+/**
+ * Uncache a module
+ * @param {string} module Module name or path
+ */
+function uncache(module = '.') {
+    return new Promise((resolve, reject) => {
+        try {
+            delete require.cache[require.resolve(module)]
+            resolve()
+        } catch (e) {
+            reject(e)
+        }
+    })
+}
+
+create(options(true, start))
+    .then(nzwa => start(nzwa))
+    .catch((error) => console.log(error))

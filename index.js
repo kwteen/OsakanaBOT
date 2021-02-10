@@ -10,6 +10,12 @@ const color = require('./lib/color')
 
 const setting = JSON.parse(fs.readFileSync('./settings/setting.json'))
 
+let {
+    mtc: mtcState,
+    banChats,
+    restartState: isRestart
+    } = setting
+
 /*
 //THANKS TO TOBZ & NURUTOMO
 require('./nzwa.js')
